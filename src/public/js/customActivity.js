@@ -27,6 +27,8 @@ define(['postmonger'], (Postmonger) => {
             data.arguments.execute.inArguments.length > 0
         ) ? data.arguments.execute.inArguments : [];
 
+        console.log('inArguments when initActivity:', inArguments);
+
         const tableNameArg = inArguments.find(arg => arg.tableName);
         if (tableNameArg) document.getElementById('tableName').value = tableNameArg.tableName;
 
