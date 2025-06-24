@@ -53,9 +53,9 @@ define(['postmonger'], (Postmonger) => {
         const fieldsObject = {};
         for (const groupDiv of groupDivs) {
             const inputs = groupDiv.querySelectorAll('input');
-            for (const input of inputs) {
-                let fieldName = '';
-                let fieldValue = '';
+            let fieldName = '';
+            let fieldValue = '';
+            for (const input of inputs) {    
                 if (input.name === 'fieldName') fieldName = input.value;
                 else if (input.name === 'fieldValue') {
                     fieldValue = `${input.value}`;
@@ -63,8 +63,8 @@ define(['postmonger'], (Postmonger) => {
                         .replace(/{/g, '*Fst_B*') // "First brace"
                         .replace(/}/g, '*Lst_B*'); // "Last brace" */
                 }
-                fieldsObject[fieldName] = fieldValue;
             }
+            fieldsObject[fieldName] = fieldValue;
         }
         const fields = JSON.stringify(fieldsObject);
 
