@@ -81,7 +81,7 @@ const execute = async function (req: Request, res: any) {
             if (
                 !decoded
                 || typeof decoded === 'string'
-                || !decoded.inArgments
+                || !decoded.inArguments
                 || decoded.inArguments.length <= 0
             ) {
                 console.error('inArguments invalid.');
