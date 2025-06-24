@@ -35,14 +35,20 @@ define(['postmonger'], (Postmonger) => {
         const fieldsArg = inArguments.find(arg => arg.fields);
         if (fieldsArg) {
             const parsedFields = JSON.parse(fieldsArg.fields);
-            for (const parsedField of parsedFields) {
+            for (const parsedField in parsedFields) {
                 addItem(
-                    parsedField[0],
-                    parsedField[1],
-                        // .replace(/\*Fst_B\*/g, '{')
-                        // .replace(/\*Lst_B\*/g, '}'),
+                    parsedField,
+                    parsedFields[parsedField],
                 );
             }
+            // for (const parsedField of parsedFields) {
+            //     addItem(
+            //         parsedField[0],
+            //         parsedField[1],
+            //             // .replace(/\*Fst_B\*/g, '{')
+            //             // .replace(/\*Lst_B\*/g, '}'),
+            //     );
+            // }
         }
     });
 
