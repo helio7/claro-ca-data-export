@@ -53,7 +53,8 @@ define(['postmonger'], (Postmonger) => {
     });
 
     connection.on('clickedNext', () => {
-        const tableName = document.getElementById('tableName').value;
+        // const tableName = document.getElementById('tableName').value;
+        const tableName = `{{Contact.Attribute."JourneyClusterPrepago2".TipoEvento}}`;
 
         const groupDivs = document.querySelectorAll('.field-item');
         const fieldsObject = {};
