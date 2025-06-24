@@ -99,9 +99,11 @@ const execute = async function (req: Request, res: any) {
             console.log('TABLE NAME:', tableName);
             console.log('UNPARSED FIELDS:', fields);
 
-            const parsedFields: {
+            /* const parsedFields: {
                 [fieldName: string]: string,
-            } = JSON.parse(fields);
+            } = JSON.parse(fields); */
+
+            const parsedFields = deserializeString(fields);
 
             console.log('PARSED FIELDS:', parsedFields);
 
@@ -159,6 +161,15 @@ function specialConsoleLog(
     const jsonifiedData = JSON.stringify(data);
 
     console.log(`${todayDate}|${country}|${currentTime}|${phoneNumber}|${eventName}|${duration}|${jsonifiedData}`);
+}
+
+function deserializeString(str: string) {
+    const result: {[fieldName: string]: string} = {};
+    str.split(';').forEach(pair => {
+        const [key, ...rest] = pair.split('=');
+        result[key] = rest.join('='); // Handles '=' inside the value
+    });
+    return result;
 }
 
 export default {

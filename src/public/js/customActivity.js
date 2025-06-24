@@ -34,26 +34,20 @@ define(['postmonger'], (Postmonger) => {
 
         const fieldsArg = inArguments.find(arg => arg.fields);
         if (fieldsArg) {
-            const parsedFields = JSON.parse(fieldsArg.fields);
+            // const parsedFields = JSON.parse(fieldsArg.fields);
+            const parsedFields = deserializeString(fieldsArg.fields);
             for (const parsedField in parsedFields) {
                 addItem(
                     parsedField,
                     parsedFields[parsedField],
                 );
             }
-            // for (const parsedField of parsedFields) {
-            //     addItem(
-            //         parsedField[0],
-            //         parsedField[1],
-            //             // .replace(/\*Fst_B\*/g, '{')
-            //             // .replace(/\*Lst_B\*/g, '}'),
-            //     );
-            // }
         }
     });
 
     connection.on('clickedNext', () => {
-        const tableName = `Something here - ${document.getElementById('tableName').value} - And something else here`;
+        const tableName = document.getElementById('tableName').value;
+        // const tableName = `Something here - ${document.getElementById('tableName').value} - And something else here`; // This works too
         // const tableName = document.getElementById('tableName').value; // If the value is '{{Contact.Attribute."JourneyClusterPrepago2".TipoEvento}}', it works
         // const tableName = `{{Contact.Attribute."JourneyClusterPrepago2".TipoEvento}}`; This works
 
@@ -63,18 +57,14 @@ define(['postmonger'], (Postmonger) => {
             const inputs = groupDiv.querySelectorAll('input');
             let fieldName = '';
             let fieldValue = '';
-            for (const input of inputs) {    
+            for (const input of inputs) {
                 if (input.name === 'fieldName') fieldName = input.value;
-                else if (input.name === 'fieldValue') {
-                    fieldValue = `${input.value}`;
-                    /* fieldValue = input.value
-                        .replace(/{/g, '*Fst_B*') // "First brace"
-                        .replace(/}/g, '*Lst_B*'); // "Last brace" */
-                }
+                else if (input.name === 'fieldValue') fieldValue = input.value;
             }
             fieldsObject[fieldName] = fieldValue;
         }
-        const fields = JSON.stringify(fieldsObject);
+        // const fields = JSON.stringify(fieldsObject);
+        const fields = serializeObject(fieldsObject);
 
         activity['arguments'].execute.inArguments = [
             { tableName: tableName ? tableName : null },
@@ -98,3 +88,18 @@ define(['postmonger'], (Postmonger) => {
         if (eventDefinitionModel) eventDefinitionKey = eventDefinitionModel.eventDefinitionKey;
     });
 });
+
+function serializeObject(obj) {
+    return Object.entries(obj)
+        .map(([key, value]) => `${key}=${value}`)
+        .join(';');
+}
+
+function deserializeString(str) {
+    const result = {};
+    str.split(';').forEach(pair => {
+      const [key, ...rest] = pair.split('=');
+      result[key] = rest.join('='); // Handles '=' inside the value
+    });
+    return result;
+}
