@@ -51,6 +51,8 @@ interface DurationTimestampsPair {
 const { JWT_SECRET } = process.env;
 
 const execute = async function (req: Request, res: any) {
+    console.log('Request arrived!');
+
     const { body } = req;
 
     if (!body) {
@@ -62,6 +64,8 @@ const execute = async function (req: Request, res: any) {
         return res.status(401).end();
     }
 
+    console.log('Verifying...');
+
     verify(
         body.toString('utf8'),
         JWT_SECRET,
@@ -71,6 +75,8 @@ const execute = async function (req: Request, res: any) {
                 console.error(err);
                 return res.status(401).end();
             }
+
+            console.log('decoded:', decoded);
 
             if (
                 !decoded
