@@ -36,6 +36,7 @@
                         <legend>Tabla</legend>
                         <input type="text" name="tableName" id="tableName" placeholder="Nombre de la Tabla" required=""
                             style="width: 60%;" class="text-input">
+                        <div id="tableNameError" class="error-msg"></div>
                     </fieldset>
                     <fieldset id="fields-fieldset">
                         <legend>Campos</legend>
@@ -82,5 +83,24 @@
 
             document.getElementById('fields-fieldset').appendChild(groupDiv);
         }
+
+        const tableNameInput = document.getElementById('tableName');
+        const tableNameErrorDiv = document.getElementById('tableNameError');
+        let debounceTimer;
+
+        function validateTableName() {
+            if (!/^[a-zA-Z][a-zA-Z0-9_]{0,29}$/.test(tableNameInput.value)) {
+                tableNameInput.classList.add('invalid');
+                tableNameErrorDiv.textContent = 'Invalid table name format';
+            } else {
+                tableNameInput.classList.remove('invalid');
+                tableNameErrorDiv.textContent = '';
+            }
+        }
+
+        tableNameInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(validateTableName, 1500);
+        });
     </script>
 </html>
