@@ -91,7 +91,7 @@
         function validateTableName() {
             if (!/^[a-zA-Z][a-zA-Z0-9_]{0,29}$/.test(tableNameInput.value)) {
                 tableNameInput.classList.add('invalid');
-                tableNameErrorDiv.textContent = 'Invalid table name format';
+                tableNameErrorDiv.textContent = 'Nombre de tabla inválido';
             } else {
                 tableNameInput.classList.remove('invalid');
                 tableNameErrorDiv.textContent = '';
