@@ -34,7 +34,6 @@ define(['postmonger'], (Postmonger) => {
 
         const fieldsArg = inArguments.find(arg => arg.fields);
         if (fieldsArg) {
-            // const parsedFields = JSON.parse(fieldsArg.fields);
             const parsedFields = deserializeString(fieldsArg.fields);
             for (const parsedField in parsedFields) {
                 addItem(
@@ -47,9 +46,6 @@ define(['postmonger'], (Postmonger) => {
 
     connection.on('clickedNext', () => {
         const tableName = document.getElementById('tableName').value;
-        // const tableName = `Something here - ${document.getElementById('tableName').value} - And something else here`; // This works too
-        // const tableName = document.getElementById('tableName').value; // If the value is '{{Contact.Attribute."JourneyClusterPrepago2".TipoEvento}}', it works
-        // const tableName = `{{Contact.Attribute."JourneyClusterPrepago2".TipoEvento}}`; This works
 
         const groupDivs = document.querySelectorAll('.field-item');
         const fieldsObject = {};
@@ -63,7 +59,6 @@ define(['postmonger'], (Postmonger) => {
             }
             fieldsObject[fieldName] = fieldValue;
         }
-        // const fields = JSON.stringify(fieldsObject);
         const fields = serializeObject(fieldsObject);
 
         activity['arguments'].execute.inArguments = [

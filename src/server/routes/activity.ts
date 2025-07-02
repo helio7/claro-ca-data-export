@@ -1,6 +1,8 @@
 'use strict';
 import { Request } from "express";
 import { JwtPayload, verify } from 'jsonwebtoken';
+import oracleDb, { Connection } from 'oracledb';
+import { dbConfig } from "../db";
 
 const logExecuteData: {
     body: any;
@@ -99,18 +101,78 @@ const execute = async function (req: Request, res: any) {
             console.log('TABLE NAME:', tableName);
             console.log('UNPARSED FIELDS:', fields);
 
-            /* const parsedFields: {
-                [fieldName: string]: string,
-            } = JSON.parse(fields); */
-
             const parsedFields = deserializeString(fields);
-
             console.log('PARSED FIELDS:', parsedFields);
 
-            return res.status(200).send({ success: true });
+            // Validate table name
+            if (!isValidIdentifier(tableName)) {
+                console.error('Invalid table name.');
+                return res.status(200).send({ success: false });
+            }
+
+            // Validate all column names
+            const columns = Object.keys(parsedFields);
+            for (const col of columns) {
+                if (!isValidIdentifier(col)) {
+                    console.error(`Invalid column name (1st check): ${col}`);
+                    return res.status(200).send({ success: false });
+                }
+            }
+
+            try {
+                const connection = await oracleDb.getConnection(dbConfig);
+
+                const _tableExists = await tableExists(connection, 'users');
+                if (!_tableExists) throw new Error('Table does not exist.');
+
+                const columns = Object.keys(parsedFields);
+
+                // Validate that all user-supplied column names exist in the table
+                const validColumns = await getValidColumns(connection, tableName);
+                for (const col of columns) {
+                    if (!validColumns.includes(col.toUpperCase())) {
+                        throw new Error(`Invalid column name (2nd check): ${col}`);
+                    }
+                }
+
+                const bindParams = columns.map(col => `:${col}`);
+                await connection.execute(
+                    `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${bindParams.join(', ')})`,
+                    parsedFields,
+                    { autoCommit: true },
+                );
+                await connection.close();
+                return res.status(200).send({ success: true });
+            } catch (err) {
+                console.error(err);
+                return res.status(200).send({ success: false });
+            }
         },
     );
 };
+
+// Regex: Allow only alphanumeric, underscores, must start with a letter
+const isValidIdentifier = (name: string) => /^[a-zA-Z][a-zA-Z0-9_]{0,29}$/.test(name);
+
+async function getValidColumns(connection: Connection, tableName: string) {
+    const result = await connection.execute(
+      `SELECT column_name FROM all_tab_columns WHERE table_name = :table`,
+      [tableName.toUpperCase()],
+    );
+    if (!result) throw new Error('Undefined result ("getValidColumns" function).');
+    if (!result.rows) throw new Error('No rows ("getValidColumns" function).');
+    return result.rows.map((row: any) => row[0]); // row[0] = column_name
+}
+
+async function tableExists(connection: Connection, tableName: string) {
+    const result = await connection.execute(
+      `SELECT table_name FROM all_tables WHERE table_name = :table`,
+      [tableName.toUpperCase()]
+    );
+    if (!result) throw new Error('Undefined result ("tableExists" function).');
+    if (!result.rows) throw new Error('No rows ("tableExists" function).');
+    return result.rows.length > 0;
+}
 
 const edit = (req: any, res: any) => {
     logData(req);
